@@ -227,9 +227,11 @@ class JMHPlugin implements Plugin<Project> {
             it.group JMH_GROUP
             it.dependsOn JMH_TASK_COMPILE_GENERATED_CLASSES_NAME
             it.inputs.files project.sourceSets.jmh.output
-            it.from(runtimeConfiguration) {
-                exclude metaInfExcludes
-            }
+            it.from {
+                runtimeConfiguration.asFileTree.collect {
+                    it.isDirectory() ? it : project.zipTree(it)
+                }
+            }.exclude(metaInfExcludes)
             it.doFirst {
                 from(project.sourceSets.jmh.output)
                 from(project.sourceSets.main.output)
